@@ -102,14 +102,19 @@ def vocab2embedding(vocab,embedding_size=5):
         l=[line.strip() for line in f]
         word2idx={i:w for i,w in enumerate(l)}
         embeds=nn.Embedding(len(dict),embedding_size) #shape=(vocab_size, vector_dimen)
-        lookup_tensor=torch.tensor([word2idx[w] for w in l],dtype=torch.long)
-        hello_embed=embeds(lookup_tensor)
-        print(hello_embed)
-
+        # lookup_tensor=torch.tensor([word2idx[w] for w in word2idx.keys()],dtype=torch.long)
+        # hello_embed=embeds(lookup_tensor)
+        # print(hello_embed)
+        for w in word2idx.keys():
+            lookup_tensor=torch.tensor([word2idx[w]], dtype=torch.long)
+            hello_embed=embeds(lookup_tensor)
+            print(hello_embed)
     # return word2idx
 
 
-
+for i, n in dict.items():
+    if n=='the':
+        print(i)
 
 
 
