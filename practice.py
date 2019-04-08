@@ -10,18 +10,35 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-s=['this is a test.',
-   'this is a test.',
+s=['THIS IS A TEST.',
+   'This is a test.',
    '\n',
-   'this is another test.',
+   'This is another Test.',
    '11223']
 
-t=['esta es una prueba.',
-   'esta es una prueba.',
-   'hello word',
-   'esta tambien es una prueba.',
+t=['Esta es una Prueba.',
+   'Esta es una Prueba.',
+   'Hello word',
+   'Esta tambien es una prueba.',
    '',
-   'hello word']
+   'Hello word']
+
+
+def truecase(str):
+    return str[0].lower()+str[1:]
+
+def uppercase2normal(input):
+    '''
+    This function convert a sentence to lowercase if the whole sentence is in uppercase,
+    else, convert the leading character to lowercase (truecase).
+    '''
+    l=[]
+    for line in input:
+        if line.isupper():
+            l.append(line.lower())
+        else:
+            l.append(truecase(line))
+    return l
 
 
 def segment_counts(input):
@@ -55,11 +72,10 @@ def loadParallelCorpus(src,tgt):
         tl=[line.strip() for line in tf]
         diff_src_tgt_warn(sl,tl)
         sl,tl=removeEmptyDuplicates(sl,tl)
-        # tl=removeEmptyDuplicates(sf,tf)[1]
-        print(sl[:1])
-        print(tl[:1])
-        # s_file=[word_tokenize(line) for line in sl]
-        # t_file=[word_tokenize(line) for line in tl]
+        sl=uppercase2normal(sl)
+        tl=uppercase2normal(tl)
+        print(sl[:3])
+        print(tl[:3])
     return sl,tl
 
 def text2vocab(input, output, vocab_size):
@@ -78,7 +94,9 @@ def text2vocab(input, output, vocab_size):
     tmp = []
     final = []  # Add idx of <s>, </s> and UNK.
     with open(output, 'w', encoding='utf8') as o:
+        input=tokenizer(input)
         for line in input:
+            line=' '.join(line)
             for w in line.strip().split():
                 tmp.append(w)
         w_count=collections.Counter(tmp).most_common()[:vocab_size]
@@ -87,6 +105,7 @@ def text2vocab(input, output, vocab_size):
         final.insert(0, '</s>')
         final.insert(0, '<s>')
         final.insert(0, '<unk>')
+        final.insert(0, '<pad>')
         o.write('\n'.join(final))
 
 s_tmp,t_tmp=loadParallelCorpus('PC.en-it.en','PC.en-it.it')
@@ -111,10 +130,53 @@ def vocab2embedding(vocab,embedding_size=5):
             print(hello_embed)
     # return word2idx
 
+embed=nn.Embedding(10,5)
+embed(torch.LongTensor([3]))
 
-for i, n in dict.items():
-    if n=='the':
-        print(i)
+
+l=[9,9,9,9]
+l1=[1,2,3]
+l2=[4,3,2,9]
+l4=[0]
+l5=[1,9,9,4]
+def plusOne(digits):
+    l=[]
+    # for i in range(len(digits)):
+    #     l.append(digits[-i-1]*pow(10,i))
+    # num=sum(l)
+    if digits[0]==0 and len(digits)==1:
+        digits[0]=1
+        return digits
+    else:
+        for i in range(len(digits)):
+            l.append(digits[-i - 1] * pow(10, i))
+        print("list is {}".format(l))
+        print("the sum is {}".format(sum(l)))
+        num = str(sum(l)+1)
+        return [int(i) for i in num]
+
+
+def
+
+
+
+
+
+
+
+
+
+# if l[0]==0 and len(l)==1:
+#     l=1
+# elif l[len(l)-1]==9:
+#     l[len(l)-2]+=1
+#     l[len(l)-1]=0
+# else:
+#     l[len(l)-1]+=1
+
+print(l)
+
+
 
 
 

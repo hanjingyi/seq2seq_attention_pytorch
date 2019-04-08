@@ -57,22 +57,6 @@ def loadParallelCorpus(src,tgt):
         tl=uppercase2normal(tl)
     return sl,tl
 
-# def loadParallelCorpus(src,tgt):
-#     with open(src,'r',encoding='utf8') as sf, open(tgt,'r',encoding='utf8') as tf:
-#         sl=[line.strip() for line in sf]
-#         tl=[line.strip() for line in tf]
-#         diff_src_tgt_warn(sl,tl)
-#         sl,tl=removeEmptyDuplicates(sl,tl)
-#         sl=uppercase2normal(sl)
-#         tl=uppercase2normal(tl)
-#         print(sl[:3])
-#         print(tl[:3])
-#     return sl,tl
-
-
-
-
-
 
 def text2vocab(input, output, vocab_size):
     '''
