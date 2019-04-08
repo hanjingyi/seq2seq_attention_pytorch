@@ -1,6 +1,3 @@
-import tensorflow as tf
-import tensorboard
-
 import collections
 from colorama import Fore
 from colorama import Style

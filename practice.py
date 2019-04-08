@@ -1,9 +1,8 @@
-import spacy
+
 from nltk.tokenize import word_tokenize
 from colorama import Fore
 from colorama import Style
-import torch
-from torchtext.data import Field, BucketIterator
+
 import collections
 import torch
 import torch.nn as nn
