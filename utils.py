@@ -72,7 +72,7 @@ def text2vocab(input, output, vocab_size):
 
 
     tmp = []
-    final = []  # Add idx of <s>, </s> and UNK.
+    final = []  # Add idx of <s>, </s>, <pad> and UNK.
     with open(output, 'w', encoding='utf8') as o:
         input=tokenizer(input)
         for line in input:
