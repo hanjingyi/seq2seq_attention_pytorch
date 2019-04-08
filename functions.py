@@ -2,8 +2,6 @@ import tensorflow as tf
 import tensorboard
 
 import collections
-import spacy
-from torchtext
 from colorama import Fore
 from colorama import Style
 
@@ -12,15 +10,32 @@ def tokenizer(input):
     return [word_tokenize(line) for line in input]
 
 def segment_counts(input):
-    with open(input,'r',encoding='utf8') as f:
-        lines=len([line for line in f])
+        lines=len([line for line in input])
         return lines
+
+def truecase(str):
+    return str[0].lower()+str[1:]
+
+def uppercase2normal(input):
+    '''
+    This function convert a sentence to lowercase if the whole sentence is in uppercase,
+    else, convert the leading character to lowercase (truecase).
+    '''
+    l=[]
+    for line in input:
+        if line.isupper():
+            l.append(line.lower())
+        else:
+            l.append(truecase(line))
+    return l
+
 
 def diff_src_tgt_warn(src,tgt):
     if segment_counts(src)!=segment_counts(tgt):
         print(f" {Fore.RED}WARNING: {src} and {tgt} have different segment counts.{Style.RESET_ALL}")
     else:
         pass
+
 def removeEmptyDuplicates(src,tgt):
     '''
    Remove duplicated src or tgt segments.
@@ -38,9 +53,26 @@ def loadParallelCorpus(src,tgt):
         tl=[line.strip() for line in tf]
         diff_src_tgt_warn(sl,tl)
         sl,tl=removeEmptyDuplicates(sl,tl)
-        # s_file=[word_tokenize(line) for line in sl]
-        # t_file=[word_tokenize(line) for line in tl]
-    return s_file,t_file
+        sl=uppercase2normal(sl)
+        tl=uppercase2normal(tl)
+    return sl,tl
+
+# def loadParallelCorpus(src,tgt):
+#     with open(src,'r',encoding='utf8') as sf, open(tgt,'r',encoding='utf8') as tf:
+#         sl=[line.strip() for line in sf]
+#         tl=[line.strip() for line in tf]
+#         diff_src_tgt_warn(sl,tl)
+#         sl,tl=removeEmptyDuplicates(sl,tl)
+#         sl=uppercase2normal(sl)
+#         tl=uppercase2normal(tl)
+#         print(sl[:3])
+#         print(tl[:3])
+#     return sl,tl
+
+
+
+
+
 
 def text2vocab(input, output, vocab_size):
     '''
@@ -58,7 +90,9 @@ def text2vocab(input, output, vocab_size):
     tmp = []
     final = []  # Add idx of <s>, </s> and UNK.
     with open(output, 'w', encoding='utf8') as o:
+        input=tokenizer(input)
         for line in input:
+            line=' '.join(line)
             for w in line.strip().split():
                 tmp.append(w)
         w_count=collections.Counter(tmp).most_common()[:vocab_size]
@@ -67,15 +101,15 @@ def text2vocab(input, output, vocab_size):
         final.insert(0, '</s>')
         final.insert(0, '<s>')
         final.insert(0, '<unk>')
+        final.insert(0, '<pad>')
         o.write('\n'.join(final))
 
 
-def vocab2embedding(vocab,embedding_size):
+def word2idx(vocab):
     '''
-    Return word embeddings for each word from given vocaulary file.
-    the tensor will the shape[vocabulary_size+3, embedding_size]
+    Return a dictionary {idx:word}.
     '''
     with open(vocab,'r',encoding='utf8') as f:
-        word2idx={idx:line.strip for idx,line.strip() in enumerate(f)}
+        word2idx={idx:line.strip() for idx,line in enumerate(f)}
     return word2idx
 
