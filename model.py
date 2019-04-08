@@ -16,7 +16,7 @@ class Encoder(nn.Module):
         self.embed_size = embed_size
         self.embed = nn.Embedding(input_size, embed_size)
         self.gru = nn.GRU(embed_size, hidden_size, n_layers,
-                          dropout=dropout, bidirectional=True)
+                          dropout=dropout, bidirectional=True) # Or use nn.LSTM()?
 
     def forward(self, src, hidden=None):
         embedded = self.embed(src)
