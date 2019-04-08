@@ -5,6 +5,7 @@ from torch import nn
 from torch.autograd import Variable
 import torch.nn.functional as F
 
+# info: https://zhuanlan.zhihu.com/p/40920384
 
 class Encoder(nn.Module):
     def __init__(self, input_size, embed_size, hidden_size,
