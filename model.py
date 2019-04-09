@@ -19,8 +19,9 @@ class Encoder(nn.Module):
                           dropout=dropout, bidirectional=True) # Or use nn.LSTM()?
 
     def forward(self, src, hidden=None):
-        embedded = self.embed(src)
-        outputs, hidden = self.gru(embedded, hidden)
+        embedded = self.embed(src) # src is the sequence of word idx of an input sentence.
+        outputs, hidden = self.gru(embedded, hidden) # outputs refer to all the output paramters from each of time step,
+                                                    # hidden is the last hidden state. shape=(sent_length, batch_size, embedding_size)
         # sum bidirectional outputs
         outputs = (outputs[:, :, :self.hidden_size] +
                    outputs[:, :, self.hidden_size:])
