@@ -15,7 +15,9 @@ class EncoderAtt(nn.Module):
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.embed_size = embed_size
-        self.embed = nn.Embedding(input_size, embed_size) #input_size is the input vocab size?
+        self.n_layers=n_layers
+
+        self.embed = nn.Embedding(input_size, embed_size) #input_size is the input vocab size
         self.gru = nn.GRU(embed_size, hidden_size, n_layers,
                           dropout=dropout, bidirectional=True)
 

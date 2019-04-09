@@ -43,6 +43,8 @@ def removeEmptyDuplicates(src,tgt):
     t=[line_t for idx, (line_s,line_t) in enumerate(set(zip(src,tgt))) if line_s.strip() and line_t.strip()]
     return s,t
 
+def filter_sent_Maxlength(src,tgt)
+
 
 def loadParallelCorpus(src,tgt):
     with open(src,'r',encoding='utf8') as sf, open(tgt,'r',encoding='utf8') as tf:
@@ -96,12 +98,14 @@ def word2idx(vocab):
 
 
 def sent2idx(vocab,sent):
-    s=[]
     dict=word2idx(vocab)
+    s=[dict['<s>']]
     for w in sent.strip().split():
         if w not in dict.keys():
             s.append(dict['<unk>'])
         else:
             s.append(dict[w])
+    s.append(dict['</s>'])
     return s
 
+s='this is a test for unknown word - jingyi'
