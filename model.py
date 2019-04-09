@@ -6,6 +6,7 @@ from torch.autograd import Variable
 import torch.nn.functional as F
 
 # info: https://zhuanlan.zhihu.com/p/40920384
+# info: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 # info: https://github.com/spro/practical-pytorch/blob/master/seq2seq-translation/seq2seq-translation.ipynb
 
 class EncoderAtt(nn.Module):
