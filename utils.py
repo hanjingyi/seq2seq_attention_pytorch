@@ -91,6 +91,18 @@ def word2idx(vocab):
     Return a dictionary {idx:word}.
     '''
     with open(vocab,'r',encoding='utf8') as f:
-        word2idx={idx:line.strip() for idx,line in enumerate(f)}
+        word2idx={line.strip(): idx for idx,line in enumerate(f)}
     return word2idx
+
+s='this is a test .'
+
+def sent2idx(vocab,sent):
+    s=[]
+    dict=word2idx(vocab)
+    for w in sent.strip().split():
+        if w not in dict.keys():
+            s.append(dict['<unk>'])
+        else:
+            s.append(dict[w])
+    return s
 
