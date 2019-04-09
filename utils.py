@@ -105,5 +105,3 @@ def sent2idx(vocab,sent):
             s.append(dict[w])
     s.append(dict['</s>'])
     return s
-
-s='this is a test for unknown word - jingyi'
