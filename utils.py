@@ -43,8 +43,6 @@ def removeEmptyDuplicates(src,tgt):
     t=[line_t for idx, (line_s,line_t) in enumerate(set(zip(src,tgt))) if line_s.strip() and line_t.strip()]
     return s,t
 
-def filter_sent_Maxlength(src,tgt)
-
 
 def loadParallelCorpus(src,tgt):
     with open(src,'r',encoding='utf8') as sf, open(tgt,'r',encoding='utf8') as tf:
