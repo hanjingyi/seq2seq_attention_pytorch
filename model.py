@@ -19,12 +19,20 @@ class EncoderAtt(nn.Module):
 
         self.embed = nn.Embedding(input_size, embed_size) #input_size is the input vocab size
         self.gru = nn.GRU(embed_size, hidden_size, n_layers,
-                          dropout=dropout, bidirectional=True)
+                          dropout=dropout, bidirectional=True) # GRU: https://pytorch.org/docs/0.3.1/nn.html#gru
 
     def forward(self, src, hidden=None):
-        embedded = self.embed(src) # src is the sequence of word idx of an input sentence.
-        outputs, hidden = self.gru(embedded, hidden) # outputs refer to all the output paramters from each of time step,
-                                                    # hidden is the last hidden state. shape=(sent_length, batch_size, embedding_size)
+        embedded = self.embed(src) # src is a batch of word sequence idx?
+        outputs, hidden = self.gru(embedded, hidden)
+        # INPUT:
+               # embedded(seq_len, batch, input_size)
+               # hidden(num_layers * num_directions, batch, hidden_size)
+               # The input can also be a packed variable length seq using torch.nn.utils.rnn.pack_padded_sequence()
+        # OUTPUT:
+               # outputs(seq_len, batch, hidden_size * num_directions)
+               # hidden(num_layers * num_directions, batch, hidden_size)
+
+
         # sum bidirectional outputs
         outputs = (outputs[:, :, :self.hidden_size] +
                    outputs[:, :, self.hidden_size:])
