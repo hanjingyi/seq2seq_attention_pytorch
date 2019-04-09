@@ -94,7 +94,6 @@ def word2idx(vocab):
         word2idx={line.strip(): idx for idx,line in enumerate(f)}
     return word2idx
 
-s='this is a test .'
 
 def sent2idx(vocab,sent):
     s=[]
