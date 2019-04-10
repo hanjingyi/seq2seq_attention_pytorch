@@ -8,7 +8,8 @@ import torch.nn.functional as F
 # info: https://zhuanlan.zhihu.com/p/40920384
 # info: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 # info: https://github.com/spro/practical-pytorch/blob/master/seq2seq-translation/seq2seq-translation.ipynb
-
+# info: https://github.com/bentrevett/pytorch-seq2seq/blob/master/1%20-%20Sequence%20to%20Sequence%20Learning%20with%20Neural%20Networks.ipynb
+# info: https://github.com/IBM/pytorch-seq2seq/blob/master/seq2seq/models/seq2seq.py
 
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, embed_size, hidden_size,
@@ -52,16 +53,29 @@ class DecoderRNN(nn.Module):
         return output, hidden
 
 class Seq2Seq(nn.Module):
-    def __init__(self, encoder, decoder, device):
+    def __init__(self, encoder, decoder, decode_function=F.log_softmax,device=None):
         super().__init__()
         self.encoder=encoder
         self.decoder=decoder
         self.device=device
+        self.decode_function=decode_function
 
         assert encoder.hidden_size == decoder.hidden_size, \
             "Hidden dimensions of encoder and decoder must be equal."
         assert encoder.n_layers == decoder.n_layers, \
             "Encoder and decoder must have equal number of layers."
+
+    def flatten_parameters(self):
+        self.encoder.rnn.flatten_parameters()
+        self.decoder.rnn.flatten_parameters()
+
+        '''
+            Resets parameter data pointer so that they can use faster code paths.
+
+            Right now, this works only if the module is on the GPU and cuDNN is enabled.
+            Otherwise, it's a no-op.
+            
+        '''
 
     def forward(self, src, tgt, teacher_forcing_ratio=0.5):
         # src=[src_sent_len, batch_size]
@@ -71,6 +85,14 @@ class Seq2Seq(nn.Module):
         batch_size=tgt.shape[1]
         max_len=tgt.shape[0]
         tgt_vocab_size=self.decoder.output_size
+
+        # tensor to store decoder outputs
+        outputs=Variable(torch.zeros(max_len, batch_size,tgt_vocab_size)) # with gpu, add ".to(self.device)", but how about with cpu.
+
+        # last hidden state of the encoder is used as the initial hidden state of the decoder.
+        hidden, output=self.encoder(src)
+
+
 
 
 
