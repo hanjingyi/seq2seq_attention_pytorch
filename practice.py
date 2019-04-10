@@ -132,48 +132,25 @@ def vocab2embedding(vocab,embedding_size=5):
 embed=nn.Embedding(10,5)
 embed(torch.LongTensor([3]))
 
-
-l=[9,9,9,9]
-l1=[1,2,3]
-l2=[4,3,2,9]
-l4=[0]
-l5=[1,9,9,4]
-def plusOne(digits):
-    l=[]
-    # for i in range(len(digits)):
-    #     l.append(digits[-i-1]*pow(10,i))
-    # num=sum(l)
-    if digits[0]==0 and len(digits)==1:
-        digits[0]=1
-        return digits
-    else:
-        for i in range(len(digits)):
-            l.append(digits[-i - 1] * pow(10, i))
-        print("list is {}".format(l))
-        print("the sum is {}".format(sum(l)))
-        num = str(sum(l)+1)
-        return [int(i) for i in num]
+class Mammal(object):
+    def __init__(self, mammalName):
+        self.mammalName=mammalName
+        print(mammalName, 'is a warm-blooded animal.')
+    def mammal_feature(self):
+        print("mammal feature is spark.")
 
 
-def
+class Dog(Mammal):
+
+    def __init__(self):
+        print('Dog has four legs.')
+        super().__init__('Poppy')
 
 
 
 
 
 
-
-
-
-# if l[0]==0 and len(l)==1:
-#     l=1
-# elif l[len(l)-1]==9:
-#     l[len(l)-2]+=1
-#     l[len(l)-1]=0
-# else:
-#     l[len(l)-1]+=1
-
-print(l)
 
 
 

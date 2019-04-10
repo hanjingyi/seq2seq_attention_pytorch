@@ -9,57 +9,103 @@ import torch.nn.functional as F
 # info: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 # info: https://github.com/spro/practical-pytorch/blob/master/seq2seq-translation/seq2seq-translation.ipynb
 
-class EncoderAtt(nn.Module):
+
+class EncoderRNN(nn.Module):
     def __init__(self, input_size, embed_size, hidden_size,
-                 n_layers=1, dropout=0.5):
-        super(EncoderAtt, self).__init__()
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-        self.embed_size = embed_size
-        self.n_layers=n_layers
+                 variable_lengths=False,n_layers=1, dropout=0.5):
+        super(EncoderRNN, self).__init__()
+        self.input_size=input_size
+        self.embed_size=embed_size
+        self.hidden_size=hidden_size
+        self.variable_lengths = variable_lengths
 
-        self.embed = nn.Embedding(input_size, embed_size) #input_size is the input vocab size
-        self.gru = nn.GRU(embed_size, hidden_size, n_layers,
-                          dropout=dropout, bidirectional=True) # GRU: https://pytorch.org/docs/0.3.1/nn.html#gru
+        self.embedding=nn.Embedding(input_size,embed_size)
+        self.gru=nn.GRU(embed_size,hidden_size,n_layers,dropout=dropout)
 
-    def forward(self, src, hidden=None):
-        embedded = self.embed(src) # src is a batch of word sequence idx?
-        outputs, hidden = self.gru(embedded, hidden)
-        # INPUT:
-               # embedded(seq_len, batch, input_size)
-               # hidden(num_layers * num_directions, batch, hidden_size)
-               # The input can also be a packed variable length seq using torch.nn.utils.rnn.pack_padded_sequence()
-        # OUTPUT:
-               # outputs(seq_len, batch, hidden_size * num_directions)
-               # hidden(num_layers * num_directions, batch, hidden_size)
-
-
-        # sum bidirectional outputs
-        outputs = (outputs[:, :, :self.hidden_size] +
-                   outputs[:, :, self.hidden_size:])
-        return outputs, hidden
+    def forward(self, src_batch,hidden=None,input_lengths=None):
+        embedded=self.embedding(src_batch)
+        embedded=self.
+        if self.variable_lengths:
+            embedded=nn.utils.rnn.pack_padded_sequence(embedded,input_lengths,
+                                                                batch_first=False)
+        output,hidden=self.gru(embedded, hidden)
+        if self.variable_lengths:
+            output, _=nn.utils.rnn.pad_packed_sequence(output, batch_first=True)
+        return output, hidden
 
 
 class DecoderRNN(nn.Module):
-    def __init__(self, hidden_size, embed_size, output_size):
+    def __init__(self, hidden_size, embed_size, output_size,n_layers=1, dropout=0.5):
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
 
         self.embedding = nn.Embedding(output_size, hidden_size)
-        self.gru = nn.GRU(embed_size, hidden_size)
+        self.gru = nn.GRU(embed_size, hidden_size,n_la     )
         self.out = nn.Linear(hidden_size, output_size)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, input, hidden):
-        output = self.embedding(input).view(1, 1, -1)
+        output = self.embedding(input).unsqueeze(0)
         output = F.relu(output)
         output, hidden = self.gru(output, hidden)
         output = self.softmax(self.out(output[0]))
         return output, hidden
 
-    def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+class Seq2Seq(nn.Module):
+    def __init__(self, encoder, decoder, device):
+        super().__init__()
+        self.encoder=encoder
+        self.decoder=decoder
+        self.device=device
 
+        assert encoder.hidden_size == decoder.hidden_size, \
+            "Hidden dimensions of encoder and decoder must be equal."
+        assert encoder.n_layers == decoder.n_layers, \
+            "Encoder and decoder must have equal number of layers."
+
+    def forward(self, src, tgt, teacher_forcing_ratio=0.5):
+        # src=[src_sent_len, batch_size]
+        # tgt=[tgt_sent_len, batch_size]
+        # teacher_forcing_ratio is the probability to use teacher forcing.
+
+        batch_size=tgt.shape[1]
+        max_len=tgt.shape[0]
+        tgt_vocab_size=self.decoder.output_size
+
+
+
+
+
+
+# class EncoderAtt(nn.Module):
+#     def __init__(self, input_size, embed_size, hidden_size,
+#                  n_layers=1, dropout=0.5):
+#         super(EncoderAtt, self).__init__()
+#         self.input_size = input_size
+#         self.hidden_size = hidden_size
+#         self.embed_size = embed_size
+#         self.n_layers=n_layers
+#
+#         self.embed = nn.Embedding(input_size, embed_size) #input_size is the input vocab size
+#         self.gru = nn.GRU(embed_size, hidden_size, n_layers,
+#                           dropout=dropout, bidirectional=True) # GRU: https://pytorch.org/docs/0.3.1/nn.html#gru
+#
+#     def forward(self, src, hidden=None):
+#         embedded = self.embed(src) # src is a batch of word sequence idx?
+#         outputs, hidden = self.gru(embedded, hidden)
+#         # nn.GRU INPUT:
+#                # embedded(seq_len, batch, input_size)
+#                # hidden(num_layers * num_directions, batch, hidden_size)
+#                # The input can also be a packed variable length seq using torch.nn.utils.rnn.pack_padded_sequence()
+#         # nn.GRU OUTPUT:
+#                # outputs(seq_len, batch, hidden_size * num_directions)
+#                # hidden(num_layers * num_directions, batch, hidden_size)
+#
+#
+#         # sum bidirectional outputs
+#         outputs = (outputs[:, :, :self.hidden_size] +
+#                    outputs[:, :, self.hidden_size:])
+#         return outputs, hidden
 
 
 # class DecoderAtt(nn.Module):
