@@ -132,19 +132,7 @@ def vocab2embedding(vocab,embedding_size=5):
 embed=nn.Embedding(10,5)
 embed(torch.LongTensor([3]))
 
-class Mammal(object):
-    def __init__(self, mammalName):
-        self.mammalName=mammalName
-        print(mammalName, 'is a warm-blooded animal.')
-    def mammal_feature(self):
-        print("mammal feature is spark.")
 
-
-class Dog(Mammal):
-
-    def __init__(self):
-        print('Dog has four legs.')
-        super().__init__('Poppy')
 
 
 
