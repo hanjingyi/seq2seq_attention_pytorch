@@ -9,7 +9,7 @@ import torch.nn.functional as F
 # info: https://pytorch.org/tutorials/intermediate/seq2seq_translation_tutorial.html
 # info: https://github.com/spro/practical-pytorch/blob/master/seq2seq-translation/seq2seq-translation.ipynb
 # info: https://github.com/bentrevett/pytorch-seq2seq/blob/master/1%20-%20Sequence%20to%20Sequence%20Learning%20with%20Neural%20Networks.ipynb
-# info: https://github.com/IBM/pytorch-seq2seq/blob/master/seq2seq/models/seq2seq.py
+# info: (*) https://github.com/IBM/pytorch-seq2seq/blob/master/seq2seq/models/seq2seq.py
 
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, embed_size, hidden_size,
@@ -25,10 +25,9 @@ class EncoderRNN(nn.Module):
 
     def forward(self, src_batch,hidden=None,input_lengths=None):
         embedded=self.embedding(src_batch)
-        embedded=self.
+        embedded=self.input_dropout(embedded)
         if self.variable_lengths:
-            embedded=nn.utils.rnn.pack_padded_sequence(embedded,input_lengths,
-                                                                batch_first=False)
+            embedded=nn.utils.rnn.pack_padded_sequence(embedded,input_lengths, batch_first=True)
         output,hidden=self.gru(embedded, hidden)
         if self.variable_lengths:
             output, _=nn.utils.rnn.pad_packed_sequence(output, batch_first=True)

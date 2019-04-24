@@ -9,19 +9,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 
-s=['THIS IS A TEST.',
-   'This is a test.',
-   '\n',
-   'This is another Test.',
-   '11223']
-
-t=['Esta es una Prueba.',
-   'Esta es una Prueba.',
-   'Hello word',
-   'Esta tambien es una prueba.',
-   '',
-   'Hello word']
-
 
 def truecase(str):
     return str[0].lower()+str[1:]
@@ -133,28 +120,92 @@ embed=nn.Embedding(10,5)
 embed(torch.LongTensor([3]))
 
 
+sub='fl'
+str=["flower","flow","flight"]
+
+
+# for some in str:
+import collections
+import string
+import random
+
+for i in range(len(str)):
+    set(str[0]).intersection(str[1])
+
+
+
+def removeParallelSubsample(src,tgt,sample_src, sample_tgt):
+    with open(src,'r',encoding='utf8') as s, open(tgt,'r', encoding='utf8') as t, \
+        open(f"{src}.rest_subsample.sl", 'w',encoding='utf8' ) as os, open(f"{tgt}.rest_subsample.tl", 'w',encoding='utf8') as ot, \
+        open(sample_src,'r', encoding='utf8') as samp_s, open(sample_tgt,'r',encoding='utf8') as samp_t:
+        sf=[line for line in samp_s]
+        tf=[line for line in samp_t]
+        for idx, (line_s,line_t) in enumerate(zip(s,t)):
+            if line_s not in sf:
+                os.write(line_s)
+                ot.write(line_t)
+
+
+def removeParallelTag(src,tgt):
+    with open(src, 'r', encoding='utf8') as s, open(tgt, 'r', encoding='utf8') as t, \
+            open(f"{src}.garb_tag.sl", 'w', encoding='utf8') as garb_s, open(f"{tgt}.garb_tag.tl", 'w', encoding='utf8') as garb_t, \
+            open(f"{src}.no_tag.sl", 'w', encoding='utf8') as os, open(f"{tgt}.no_tag.tl", 'w',encoding='utf8') as ot:
+        for idx, (line_s,line_t) in enumerate(zip(s,t)):
+            if "<cf" in line_s and "/cf>" in line_s:
+                garb_s.write(line_s)
+                garb_t.write(line_t)
+            else:
+                os.write(line_s)
+                ot.write(line_t)
+
+
+def removeParallelDuplicates(src,tgt):
+    hash_set_s=set()
+    hash_set_t=set()
+    with open(src, 'r', encoding='utf8') as s, open(tgt, 'r', encoding='utf8') as t, \
+        open(f"{src}.no_duplicates.sl", 'w', encoding='utf8') as os, open(f"{tgt}.no_duplicates.tl", 'w', encoding='utf8') as ot:
+        for idx,(line_s, line_t) in enumerate(zip(s,t)):
+            hash_s=hash_sent(line_s)
+            hash_t=hash_sent(line_t)
+            if hash_s not in hash_set_s and hash_t not in hash_set_t:
+                os.write(line_s)
+                ot.write(line_t)
+                hash_set_s.add(hash_s)
+                hash_set_t.add(hash_t)
+
+
+s=["flower","flow","flight","fofight"]
+
+
+def findintersection(s1,s2):
+    return [c for c in s1 if c in s2]
+
+def subindex(s1,s2):
+    for i in range(len(s1)):
+        if s1[:i] in s2:
+            print(s2.index(s1[:1]))
+
+
+t=[]
+for i in range(len(s)-1):
+    t=[c for c in s[0] if c in s[i]]
 
 
 
 
+    if t:
+        l.append(list(t))
+
+l2=[' '.join(w) for w in l]
 
 
 
 
+if len(l)==len(s)-1:
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print('yes')
+else:
+    print('empty')
 
 
 
