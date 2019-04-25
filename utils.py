@@ -149,6 +149,3 @@ def splitTrainTuneTest(src,tgt,sum_size,tune_size,test_size):
 
 
 
-l=['0','1','2','3','4','5','6','7','8','9']
-
-train=[i for i in l[:int(len(l)*0.6)]]
