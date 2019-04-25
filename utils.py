@@ -5,10 +5,10 @@ import random
 import hashlib
 from nltk.tokenize import word_tokenize
 
-
-def segment_counts(input):
-        lines=len([line for line in input])
-        return lines
+#
+# def segment_counts(input):
+#         lines=len([line for line in input])
+#         return lines
 
 def truecase(str):
     return str[0].lower()+str[1:]
@@ -25,11 +25,11 @@ def uppercase2normal(sent):
 
 
 
-def diff_src_tgt_warn(src,tgt):
-    if segment_counts(src)!=segment_counts(tgt):
-        print(f" {Fore.RED}WARNING: {src} and {tgt} have different segment counts.{Style.RESET_ALL}")
-    else:
-        pass
+# def diff_src_tgt_warn(src,tgt):
+#     if segment_counts(src)!=segment_counts(tgt):
+#         print(f" {Fore.RED}WARNING: {src} and {tgt} have different segment counts.{Style.RESET_ALL}")
+#     else:
+#         pass
 
 
 def removeEmptyParallel(src,tgt):
@@ -97,7 +97,7 @@ def text2vocab(input, vocab_size):
 
 def word2idx(vocab):
     '''
-    Return a dictionary {idx:word}.
+    Return a dictionary {word:idx}.
     '''
     with open(vocab,'r',encoding='utf8') as f:
         word2idx={line.strip(): idx for idx,line in enumerate(f)}
