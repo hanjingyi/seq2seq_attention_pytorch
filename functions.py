@@ -1,6 +1,9 @@
 import collections
 from colorama import Fore
 from colorama import Style
+import random
+import hashlib
+from nltk.tokenize import word_tokenize
 
 
 def tokenizer(input):
@@ -94,3 +97,13 @@ def word2idx(vocab):
         word2idx={idx:line.strip() for idx,line in enumerate(f)}
     return word2idx
 
+def sent2idx(vocab,sent):
+    dict=word2idx(vocab)
+    s=[dict['<s>']]
+    for w in sent.strip().split():
+        if w not in dict.keys():
+            s.append(dict['<unk>'])
+        else:
+            s.append(dict[w])
+    s.append(dict['</s>'])
+    return s

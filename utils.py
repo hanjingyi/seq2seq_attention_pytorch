@@ -1,10 +1,10 @@
 import collections
 from colorama import Fore
 from colorama import Style
+import random
+import hashlib
+from nltk.tokenize import word_tokenize
 
-
-def tokenizer(input):
-    return [word_tokenize(line) for line in input]
 
 def segment_counts(input):
         lines=len([line for line in input])
@@ -13,18 +13,16 @@ def segment_counts(input):
 def truecase(str):
     return str[0].lower()+str[1:]
 
-def uppercase2normal(input):
+def uppercase2normal(sent):
     '''
     This function convert a sentence to lowercase if the whole sentence is in uppercase,
     else, convert the leading character to lowercase (truecase).
     '''
-    l=[]
-    for line in input:
-        if line.isupper():
-            l.append(line.lower())
-        else:
-            l.append(truecase(line))
-    return l
+    if sent.isupper():
+        return sent.lower()
+    else:
+        return truecase(sent)
+
 
 
 def diff_src_tgt_warn(src,tgt):
@@ -33,34 +31,44 @@ def diff_src_tgt_warn(src,tgt):
     else:
         pass
 
-def removeEmptyDuplicates(src,tgt):
+
+def removeEmptyParallel(src,tgt):
+    with open(src,'r', encoding='utf8') as s,\
+         open(tgt,'r',encoding='utf8') as t,\
+         open(f"{src}.noEmpty.sl",'w', encoding='utf8') as os,\
+         open(f"{tgt}.noEmpty.tl",'w', encoding='utf8') as ot:
+
+        for line_s, line_t in zip(s,t):
+            if line_s.strip() and line_t.strip():
+                os.write(line_s)
+                ot.write(line_t)
+
+def hash_sent(sent):
+    return hashlib.md5(sent.strip().encode('utf8')).hexdigest()
+
+
+def removeDuplicateParallel(src,tgt):
+    hash_set_src=set()
+    hash_set_tgt=set()
+    with open(src, 'r', encoding='utf8') as s, \
+         open(tgt, 'r', encoding='utf8') as t, \
+         open(f"{src}.noDuplicate.sl", 'w', encoding='utf8') as os, \
+         open(f"{tgt}.noDuplicate.tl", 'w', encoding='utf8') as ot:
+        for line_s, line_t in zip(s,t):
+            hash_s=hash_sent(line_s)
+            hash_t=hash_sent(line_t)
+            if hash_s not in hash_set_src and hash_t not in hash_set_tgt:
+                os.write(line_s)
+                ot.write(line_t)
+                hash_set_src.add(hash_s)
+                hash_set_tgt.add(hash_t)
+
+
+def text2vocab(input, vocab_size):
     '''
-   Remove duplicated src or tgt segments.
-   Remove empty lines.
-    '''
 
-    s=[line_s for idx, (line_s,line_t) in enumerate(set(zip(src,tgt))) if line_s.strip() and line_t.strip()]
-    t=[line_t for idx, (line_s,line_t) in enumerate(set(zip(src,tgt))) if line_s.strip() and line_t.strip()]
-    return s,t
-
-
-def loadParallelCorpus(src,tgt):
-    with open(src,'r',encoding='utf8') as sf, open(tgt,'r',encoding='utf8') as tf:
-        sl=[line.strip() for line in sf]
-        tl=[line.strip() for line in tf]
-        diff_src_tgt_warn(sl,tl)
-        sl,tl=removeEmptyDuplicates(sl,tl)
-        sl=uppercase2normal(sl)
-        tl=uppercase2normal(tl)
-    return sl,tl
-
-
-def text2vocab(input, output, vocab_size):
-    '''
-
-    :param input: a list of preprocessed input file.
-    :param output: an output file
-    :param vocab_size: define the size of the vocabulary.
+    input: a list of preprocessed input file.
+    vocab_size: define the size of the vocabulary.
     :return: a vocabulary output file.
 
     Convert input corpus to a top ranked n vocab list including <s>, </s> and UNK.
@@ -70,9 +78,10 @@ def text2vocab(input, output, vocab_size):
 
     tmp = []
     final = []  # Add idx of <s>, </s>, <pad> and UNK.
-    with open(output, 'w', encoding='utf8') as o:
-        input=tokenizer(input)
-        for line in input:
+    with open(input,'r',encoding='utf8') as f, open(f'{input}.vocab', 'w', encoding='utf8') as o:
+        for line in f:
+            line=uppercase2normal(line)
+            line=word_tokenize(line)
             line=' '.join(line)
             for w in line.strip().split():
                 tmp.append(w)
@@ -105,3 +114,41 @@ def sent2idx(vocab,sent):
             s.append(dict[w])
     s.append(dict['</s>'])
     return s
+
+def splitTrainTuneTest(src,tgt,sum_size,tune_size,test_size):
+    '''
+    sum_size: original corpus size (before splitting).
+    tune_size: tune set size.
+    test_size: test set size.
+    '''
+    with open(src,'r',encoding='utf8') as s,\
+         open(tgt,'r', encoding='utf8') as t,\
+         open('train.src','w',encoding='utf8') as train_s,\
+         open('train.tgt','w',encoding='utf8') as train_t,\
+         open('tune.src','w',encoding='utf8') as tune_s,\
+         open('tune.tgt','w',encoding='utf8') as tune_t,\
+         open('test.src','w',encoding='utf8') as test_s,\
+         open('test.tgt','w',encoding='utf8') as test_t:
+        rand = random.sample(range(sum_size), sum_size)
+        # print(rand)
+        rand_tune = [i for i in rand[:tune_size]]
+        print(rand_tune)
+        rand_test = [i for i in rand[tune_size:tune_size+test_size]]
+        print(rand_test)
+        for i, (line_s, line_t) in enumerate(zip(s,t)):
+            if i in rand_tune:
+                tune_s.write(line_s)
+                tune_t.write(line_t)
+            elif i in rand_test:
+                test_s.write(line_s)
+                test_t.write(line_t)
+            else:
+                train_s.write(line_s)
+                train_t.write(line_t)
+
+
+
+
+l=['0','1','2','3','4','5','6','7','8','9']
+
+train=[i for i in l[:int(len(l)*0.6)]]
