@@ -81,7 +81,7 @@ def text2vocab(input, vocab_size):
 
     tmp = []
     final = []  # Add idx of <s>, </s>, <pad> and UNK.
-    with open(input,'r',encoding='utf8') as f, open(f'{input}.vocab', 'w', encoding='utf8') as o:
+    with open(input,'r',encoding='utf8') as f:
         for line in f:
             line=uppercase2normal(line)
             line=word_tokenize(line)
@@ -95,7 +95,7 @@ def text2vocab(input, vocab_size):
         final.insert(0, '<s>')
         final.insert(0, '<unk>')
         final.insert(0, '<pad>')
-        o.write('\n'.join(final))
+    return final
 
 
 def word2idx(vocab):
@@ -218,3 +218,10 @@ def weight_init(m):
             else:
                 init.normal_(param.data)
 
+
+def init_weights(m):
+    for name, param in m.named_parameters():
+        nn.init.uniform_(param.data, -0.08, 0.08)
+        
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
