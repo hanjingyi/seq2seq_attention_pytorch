@@ -32,4 +32,6 @@ dec_hid_dim=512
 enc_dropout=0.5
 dec_dropout=0.5
 
-en-bg.en.noEmpty.sl.noDuplicate.sl.vocab
+# Prepare train, val and test sets
+
+
