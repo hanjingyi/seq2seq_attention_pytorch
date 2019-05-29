@@ -64,8 +64,10 @@ variable.data
 # variable convert to numpy
 variable.data.numpy()
 
-
+#############################
 # Activation function
+# Plot with matplot
+##############################
 
 import torch
 import torch.nn.functional as F
@@ -74,10 +76,10 @@ import matplotlib.pyplot as plt
 # fake data
 x=torch.linspace(-5,5,200)
 x=Variable(x)
-y_relu=F.relu(x).data.numpy()
-y_sigmoid=torch.sigmoid(x).data.numpy()
+y_relu=F.relu(x).numpy()
+y_sigmoid=torch.sigmoid(x).numpy()
 y_tanh=torch.tanh(x).numpy()
-y_softplus=F.softplus(x).data.numpy()
+y_softplus=F.softplus(x).numpy()
 
 plt.figure(1,figsize=(8,6))
 plt.subplot(221)
@@ -94,4 +96,66 @@ plt.subplot(223)
 plt.plot(x_np,y_tanh,c='blue',label='tanh')
 plt.ylim((-1.2,1.2))
 plt.legend(loc='best')
+
+#############################
+#  Implementation
+############################
+
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+
+
+# Create random x and its y.
+x=torch.unsqueeze(torch.linspace(-1,1,100), dim=1)
+y=x.pow(2) + 0.2*torch.rand(x.size()) # .pow() -> 二次方
+# Convert matrix to variable, since network only allows variables for further computation.
+x,y=Variable(x),Variable(y)
+# To plot the data
+# plt.scatter(x.numpy(),y.numpy(),c='r')
+# plt.show()
+
+# Implement neural network structure
+
+class Net(torch.nn.Module):
+    def __init__(self, n_feature,n_hidden,n_output):
+        super(Net, self).__init__()
+        self.hidden=torch.nn.Linear(n_feature,n_hidden)
+        self.predict=torch.nn.Linear(n_hidden,n_output)
+
+    def forward(self, x):
+        x=F.relu(self.hidden(x))
+        x=self.predict(x)
+        return x
+
+
+network=Net(1,10,1)
+
+# Visualization
+plt.ion() # something about plotting
+plt.show()
+
+optimizer=torch.optim.SGD(network.parameters(), lr=0.5)
+loss_func=torch.nn.MSELoss()
+
+for t in range(200):
+    prediction=network(x)
+    loss=loss_func(prediction, y) # always maintain the order of first prediction then true y label.
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+
+    if t % 5 == 0:
+        # plot and show learning process
+        plt.cla()
+        plt.scatter(x.data.numpy(), y.data.numpy())
+        plt.plot(x.data.numpy(), prediction.data.numpy(), 'r-', lw=5)
+        plt.text(0.5, 0, 'Loss=%.4f' % loss.data.numpy(), fontdict={'size': 20, 'color': 'red'})
+        plt.pause(0.1)
+
+plt.ioff()
+plt.show()
+
 
