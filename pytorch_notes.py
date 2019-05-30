@@ -174,3 +174,9 @@ x0=torch.normal(2*n_data,1)  # class0 x data (tensor), shape=(100,2)
 y0=torch.zeros(100) #class0 y data (tensor), shape=(100,1)
 x1=torch.normal(-2*n_data,1) #class1 x data (tensor), shape=(100,2)
 y1=torch.ones(100) # class1 y data (tensor), shape=(100,1)
+x=torch.cat((x0,x1),0).type(torch.FloatTensor) # FloatTensor=32-bit floating
+# torch.cat((x0,x1),0) why 0,
+y=torch.cat((y0,y1),).type(torch.LongTensor) # LongTensor=64-bit integer
+
+x.y=Variable(x), Variable(y)
+
