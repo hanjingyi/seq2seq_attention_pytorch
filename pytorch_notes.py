@@ -178,5 +178,5 @@ x=torch.cat((x0,x1),0).type(torch.FloatTensor) # FloatTensor=32-bit floating
 # torch.cat((x0,x1),0) why 0,
 y=torch.cat((y0,y1),).type(torch.LongTensor) # LongTensor=64-bit integer
 
-x.y=Variable(x), Variable(y)
+x, y=Variable(x), Variable(y)
 
