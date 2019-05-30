@@ -98,7 +98,7 @@ plt.ylim((-1.2,1.2))
 plt.legend(loc='best')
 
 #############################
-#  Implementation
+#  Implementation - regression
 ############################
 
 import torch
@@ -158,4 +158,19 @@ for t in range(200):
 plt.ioff()
 plt.show()
 
+###################################
+# Implementation - Classification
+##################################
 
+import torch
+from torch.autograd import Variable
+import torch.nn.functional as F
+import matplotlib.pyplot as plt
+
+# Create data
+
+n_data=torch.ones(100,2)
+x0=torch.normal(2*n_data,1)  # class0 x data (tensor), shape=(100,2)
+y0=torch.zeros(100) #class0 y data (tensor), shape=(100,1)
+x1=torch.normal(-2*n_data,1) #class1 x data (tensor), shape=(100,2)
+y1=torch.ones(100) # class1 y data (tensor), shape=(100,1)
