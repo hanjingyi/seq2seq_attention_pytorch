@@ -137,7 +137,7 @@ plt.ion() # something about plotting
 plt.show()
 
 optimizer=torch.optim.SGD(network.parameters(), lr=0.5)
-loss_func=torch.nn.MSELoss()
+loss_func=torch.nn.MSELoss() # Mean Square Error is useful for regression problem.
 
 for t in range(200):
     prediction=network(x)
@@ -179,4 +179,139 @@ x=torch.cat((x0,x1),0).type(torch.FloatTensor) # FloatTensor=32-bit floating
 y=torch.cat((y0,y1),).type(torch.LongTensor) # LongTensor=64-bit integer
 
 x, y=Variable(x), Variable(y)
+
+# Plot real data
+
+plt.scatter(x.data.numpy()[:,0], x.data.numpy()[:,1], c=y.data.numpy(),s=100,lw=0,cmap='RdYlGn')
+plt.show()
+
+class Net(torch.nn.Module):
+    def __init__(self, n_feature, n_hidden, n_output):
+        super(Net, self).__init__()
+        self.hidden=torch.nn.Linear(n_feature, n_hidden)
+        self.predict=torch.nn.Linear(n_hidden,n_output)
+
+    def forward(self, x):
+        x=F.relu(self.hidden(x))
+        x=self.predict(x)
+        return x
+
+network=Net(2,10,2) # 2 dimentional features, 10 hidden states and 2 binary prediction output)
+print(network)
+
+optimizer=torch.optim.SGD(network.parameters(),lr=0.02)
+loss_func=torch.nn.CrossEntropyLoss()
+
+# Visualization
+plt.ion() # something about plotting
+plt.show()
+
+
+for t in range(200):
+    out=network(x) # the output of network is still a sequence of numbers, to compute
+                   # final prediction we should use softmax (F.softmax(out)).
+    loss=loss_func(out,y)
+
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    if t % 2 ==0:
+        plt.cla()
+        prediction=torch.max(F.softmax(out),1)[1]
+        pred_y=prediction.data.numpy().squeeze()
+        target_y=y.data.numpy()
+        plt.scatter(x.data.numpy()[:,0], x.data.numpy()[:,1], c=pred_y, s=100, lw=0,cmap='RdYlGn')
+        accuracy=sum(pred_y==target_y) /200
+        plt.text(1.5, -4, 'Accuracy=%.2f' % accuracy, fontdict={'size': 20, 'color':  'red'})
+        plt.pause(0.1)
+
+plt.ioff()
+plt.show()
+
+
+####################################
+# Simple implementation methods without define class by yourself
+###################################
+
+# implemention of previous classification network using torch.nn.Sequential()
+network_2= torch.nn.Sequential(
+    torch.nn.Linear(2,10),
+    torch.nn.ReLU(),
+    torch.nn.Linear(10,2),
+)
+
+print(network)
+print(network_2)
+
+################################
+# Save and restore a model
+###############################
+def save(x,y):
+    network_2=torch.nn.Sequential(
+        torch.nn.Linear(2,10),
+        torch.nn.ReLU(), # Note: When construct network by torch.nn.Sequential(),
+                        # instead of using F.relu, use torch.nn.ReLU
+        torch.nn.Linear(10,2)
+    )
+
+    optimizer=torch.optim.SGD(network_2.parameters(), lr=0.02)
+    loss_func=torch.nn.CrossEntropyLoss()
+
+    plt.ion()
+    plt.show()
+
+    for t in range(200):
+        out=network_2(x)
+        loss=loss_func(out,y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        if t % 2 == 0:
+            plt.cla()
+            prediction = torch.max(F.softmax(out), 1)[1]
+            pred_y = prediction.data.numpy().squeeze()
+            target_y = y.data.numpy()
+            plt.scatter(x.data.numpy()[:, 0], x.data.numpy()[:, 1], c=pred_y, s=100, lw=0, cmap='RdYlGn')
+            accuracy = sum(pred_y == target_y) / 200
+            plt.text(1.5, -4, 'Accuracy=%.2f' % accuracy, fontdict={'size': 20, 'color': 'red'})
+            plt.pause(0.1)
+
+    plt.ion()
+    plt.show()
+
+    # torch.save(network_2.state_dict(), 'tmp_network_2_param.pkl') #
+    torch.save(network_2, 'tmp_network_2.pkl')   # Save entire network.
+
+def restore_entire_network():
+    network_2_restore= torch.load('tmp_network_2.pkl')
+
+def restore_network_param(model_name):
+    network_2_restore_param=torch.nn.Sequential(
+        torch.nn.Linear(2, 10),
+        torch.nn.ReLU,
+        torch.nn.Linear(10, 2)
+    )
+
+    network_2_restore_param.load_state_dict(torch.load('tmp_network_2_param.pkl'))
+    prediction=network_2(x)
+
+
+###################################
+# Training with batches
+###################################
+
+import torch
+import torch.utils.data as Data
+
+BATCH_SIZE=5
+x=torch.linspace(1,10,10)
+y=torch.linspace(10,1,10)
+
+
+
+
+
+
+
 
