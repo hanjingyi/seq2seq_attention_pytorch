@@ -298,7 +298,7 @@ def restore_network_param(model_name):
 
 
 ###################################
-# Training with batches
+# Training with batches using DataLoader.
 ###################################
 
 import torch
