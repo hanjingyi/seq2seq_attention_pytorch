@@ -326,6 +326,63 @@ for epoch in range(3): # Training the whole dataset three times.
         print('Epoch:' , epoch, '| Step:', step, '|batch x:', batch_x.numpy(), '|batch_y:', batch_y.numpy())
 
 
+##############################
+# Speed up training by SGD / Momentum / AdaGrad / RMSProp / Adam
+# Adam combines mos of the advantages of previous methods, so it is one of the most
+# effective and commonly used one.
+##############################
+
+import torch
+import torch.nn.functional as f
+import torch.utils.data as Data
+from torch.autograd import Variable
+import matplotlib.pyplot as plt
+
+# hyper parameters
+LR=0.01
+BATCH_SIZE=32
+EPOCH=12
+
+# Fake data
+x = torch.unsqueeze(torch.linspace(-1, 1, 1000), dim=1)
+y = x.pow(2) + 0.1*torch.normal(torch.zeros(*x.size()))
+
+torch_dataset=Data.TensorDataset(x,y)
+loader=Data.DataLoader(
+    dataset=torch_dataset,
+    batch_size=BATCH_SIZE,
+    shuffle=True,
+    num_workers=2
+)
+
+class Net(torch.nn.Module):
+    def __init__(self):
+        super(Net, self).__init__()
+        self.hidden = torch.nn.Linear(1, 20)   # hidden layer
+        self.predict = torch.nn.Linear(20, 1)   # output layer
+
+    def forward(self, x):
+        x = F.relu(self.hidden(x))      # activation function for hidden layer
+        x = self.predict(x)             # linear output
+        return x
+
+
+# Define different networks for the comparison
+
+net_SGD=Net()
+net_Momentum=Net()
+net_RMSprop=Net()
+net_Adam=Net()
+nets=[net_SGD, net_Momentum, net_RMSprop, net_Adam]
+
+# Define different optimizers for the comparison
+
+opt_SGD=torch.optim.SGD(net_SGD.parameters(),lr=LR)
+opt_Momentum=torch.optim.SGD(net_Momentum.parameters(),lr=LR,momentum=0.8)
+opt_RMSprop=torch.optim.RMSprop(net_RMSprop.parameters(),lr=LR,alpha=0.9)
+opt_Adam=torch.optim.Adam(net_Adam.parameters(),lr=LR,betas=(0.9,0.99))
+opts=[opt_SGD, opt_Momentum, opt_RMSprop, opt_Adam]
+
 
 
 
