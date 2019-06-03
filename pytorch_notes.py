@@ -333,7 +333,7 @@ for epoch in range(3): # Training the whole dataset three times.
 ##############################
 
 import torch
-import torch.nn.functional as f
+import torch.nn.functional as F
 import torch.utils.data as Data
 from torch.autograd import Variable
 import matplotlib.pyplot as plt
@@ -352,7 +352,7 @@ loader=Data.DataLoader(
     dataset=torch_dataset,
     batch_size=BATCH_SIZE,
     shuffle=True,
-    num_workers=2
+    num_workers=2,
 )
 
 class Net(torch.nn.Module):
@@ -384,7 +384,39 @@ opt_Adam=torch.optim.Adam(net_Adam.parameters(),lr=LR,betas=(0.9,0.99))
 opts=[opt_SGD, opt_Momentum, opt_RMSprop, opt_Adam]
 
 
+# Define loss function and record loss of different networks during the training.
+loss_func=torch.nn.MSELoss()
+loss_histories=[[],[],[],[]]
 
+for epoch in range(EPOCH):
+    print('Epoch:', epoch)
+    for step, (batch_x, batch_y) in enumerate(loader):
+        b_x=Variable(batch_x)
+        b_y=Variable(batch_y)
+
+        for net, opt, loss_history in zip(nets, opts, loss_histories):
+            output=net(b_x)
+            print(output)
+            loss=loss_func(output, b_y)
+            opt.zero_grad() # Clean gradients for next train
+            loss.backward() # backpropagation, compute gradients
+            opt.step() # Apply gradients
+            print(loss.data.numpy())
+            loss_history.append(loss.data.numpy()) # loss recoder
+
+
+
+# Plot
+
+labels=['SGD','Momentum','RMSprop','Adam']
+for i, loss_history in enumerate(loss_histories):
+    plt.plot(loss_history, label=labels[i])
+
+plt.legend(loc='best')
+plt.xlabel('Step')
+plt.ylabel('Loss')
+plt.ylim((0,0.2))
+plt.show()
 
 
 
