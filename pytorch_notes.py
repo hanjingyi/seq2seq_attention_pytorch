@@ -303,10 +303,28 @@ def restore_network_param(model_name):
 
 import torch
 import torch.utils.data as Data
+torch.manual_seed(7) # Make it reproducible.
 
 BATCH_SIZE=5
 x=torch.linspace(1,10,10)
 y=torch.linspace(10,1,10)
+
+# number of epoch -> Repeat the training (with entire data set) how many times.
+# number of batch -> Each training step using how many data samples.
+
+torch_dataset=Data.TensorDataset(x, y) #  先转换成 torch 能识别的 Dataset
+
+loader=Data.DataLoader(
+    dataset=torch_dataset,  # Must be torch TensorDataset format.
+    batch_size=BATCH_SIZE, # Mini batch size.
+    shuffle=True, # Important to shuffle dataset for each training epoch.
+    num_workers=2 #  多线程来读数据
+)
+
+for epoch in range(3): # Training the whole dataset three times.
+    for step, (batch_x, batch_y) in enumerate(loader):
+        print('Epoch:' , epoch, '| Step:', step, '|batch x:', batch_x.numpy(), '|batch_y:', batch_y.numpy())
+
 
 
 
